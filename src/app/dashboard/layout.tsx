@@ -6,35 +6,28 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8">
-      {/* Dashboard header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-lg font-semibold text-stone-900">
-            Welcome back, {mockUser.name}
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10">
+      {/* Dashboard header — tight, operational */}
+      <div className="flex items-baseline justify-between mb-8">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-base font-semibold text-stone-900 tracking-tight">
+            {mockUser.name}
           </h1>
-          <p className="text-sm text-stone-400">
-            Watching {mockUser.following.length} departments
-          </p>
+          <span className="text-xs text-stone-400">
+            {mockUser.following.length} departments
+          </span>
         </div>
         <div className="flex items-center gap-3">
-          {mockUser.plan === "pro" ? (
-            <span className="badge bg-amber-100 text-amber-800 border border-amber-200">
+          {mockUser.plan === "pro" && (
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-amber-700">
               Pro
             </span>
-          ) : (
-            <a
-              href="/dashboard/settings"
-              className="text-xs font-medium text-amber-700 hover:text-amber-900 transition-colors"
-            >
-              Upgrade to Pro
-            </a>
           )}
           <a
             href="/dashboard/settings"
-            className="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center text-xs font-semibold text-stone-600 hover:bg-stone-300 transition-colors"
+            className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
           >
-            {mockUser.name[0]}
+            Settings
           </a>
         </div>
       </div>
