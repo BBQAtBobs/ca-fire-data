@@ -1,147 +1,259 @@
 /**
- * Stylized California locator graphic.
+ * Signature California locator graphic.
  *
- * Renders a simplified California outline with a pulsing dot
- * at the department's approximate location. The outline is a
- * hand-simplified SVG path — not cartographically precise,
- * but geographically useful for orientation.
+ * A large, warm, stylized state silhouette with a prominent
+ * location marker. Designed as the visual anchor of department
+ * profile pages — immediately orients the user geographically
+ * and adds identity and polish to every profile.
  *
- * Coordinate mapping: lat/lng → SVG x/y within a bounding box
- * covering roughly California's extent.
+ * Uses simplified California boundary coordinates with
+ * Mercator projection. Cartographically approximate.
  */
 
-// California bounding box (approximate)
-const CA_BOUNDS = {
-  minLat: 32.5,
-  maxLat: 42.0,
-  minLng: -124.5,
-  maxLng: -114.0,
+// California bounding box
+const CA = {
+  minLat: 32.53,
+  maxLat: 42.01,
+  minLng: -124.48,
+  maxLng: -114.13,
 };
 
-const SVG_WIDTH = 160;
-const SVG_HEIGHT = 240;
+// SVG viewBox dimensions — tall to match CA's shape
+const W = 220;
+const H = 310;
+const PAD = 16;
 
-function geoToSvg(
-  lat: number,
-  lng: number
-): { x: number; y: number } {
+function geo(lat: number, lng: number): { x: number; y: number } {
   const x =
-    ((lng - CA_BOUNDS.minLng) / (CA_BOUNDS.maxLng - CA_BOUNDS.minLng)) *
-    SVG_WIDTH;
+    PAD + ((lng - CA.minLng) / (CA.maxLng - CA.minLng)) * (W - PAD * 2);
   const y =
-    ((CA_BOUNDS.maxLat - lat) / (CA_BOUNDS.maxLat - CA_BOUNDS.minLat)) *
-    SVG_HEIGHT;
+    PAD + ((CA.maxLat - lat) / (CA.maxLat - CA.minLat)) * (H - PAD * 2);
   return { x, y };
 }
+
+// Simplified California outline — key coastal and border points
+const CA_OUTLINE_POINTS: [number, number][] = [
+  [42.0, -124.2],
+  [41.99, -123.5],
+  [41.99, -122.5],
+  [41.99, -121.5],
+  [41.99, -120.0],
+  [39.0, -120.0],
+  [38.5, -120.0],
+  [38.0, -119.5],
+  [37.5, -118.5],
+  [36.5, -117.8],
+  [36.0, -117.0],
+  [35.5, -116.0],
+  [35.0, -115.5],
+  [34.5, -115.0],
+  [34.0, -114.6],
+  [33.5, -114.5],
+  [33.0, -114.6],
+  [32.72, -114.72],
+  [32.54, -117.12],
+  [32.8, -117.25],
+  [33.0, -117.3],
+  [33.2, -117.4],
+  [33.4, -117.6],
+  [33.7, -118.0],
+  [33.75, -118.3],
+  [33.9, -118.45],
+  [34.0, -118.5],
+  [34.05, -118.8],
+  [34.15, -119.2],
+  [34.3, -119.3],
+  [34.4, -119.7],
+  [34.45, -120.0],
+  [34.5, -120.5],
+  [34.9, -120.6],
+  [35.2, -120.85],
+  [35.4, -120.9],
+  [35.65, -121.15],
+  [36.0, -121.5],
+  [36.3, -121.8],
+  [36.6, -121.9],
+  [36.8, -121.8],
+  [37.0, -122.1],
+  [37.2, -122.3],
+  [37.5, -122.4],
+  [37.6, -122.5],
+  [37.75, -122.5],
+  [37.8, -122.48],
+  [37.85, -122.5],
+  [38.0, -122.7],
+  [38.3, -123.0],
+  [38.5, -123.1],
+  [38.8, -123.4],
+  [39.0, -123.6],
+  [39.3, -123.7],
+  [39.8, -123.8],
+  [40.0, -124.0],
+  [40.3, -124.3],
+  [40.8, -124.2],
+  [41.0, -124.1],
+  [41.5, -124.1],
+  [41.75, -124.2],
+  [42.0, -124.2],
+];
+
+const outlinePath =
+  CA_OUTLINE_POINTS.map((p, i) => {
+    const { x, y } = geo(p[0], p[1]);
+    return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(" ") + " Z";
 
 export function CaliforniaLocator({
   lat,
   lng,
   label,
   className = "",
+  size = "default",
 }: {
   lat: number;
   lng: number;
   label: string;
   className?: string;
+  size?: "default" | "large";
 }) {
-  const point = geoToSvg(lat, lng);
+  const point = geo(lat, lng);
+  const id = `loc-${label.replace(/\s/g, "")}`;
+
+  // Determine label placement — offset to avoid going off-edge
+  const labelRight = point.x < W * 0.6;
+  const labelX = labelRight ? point.x + 14 : point.x - 14;
+  const textAnchor = labelRight ? "start" : "end";
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={className}>
       <svg
-        viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-        className="w-full h-auto"
+        viewBox={`0 0 ${W} ${H}`}
+        className={`w-full h-auto ${size === "large" ? "max-w-[280px]" : "max-w-[200px]"}`}
+        role="img"
         aria-label={`Map showing ${label} location in California`}
       >
         <defs>
-          {/* Subtle gradient fill for the state */}
-          <linearGradient id="ca-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#e7e5e4" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#d6d3d1" stopOpacity="0.4" />
+          {/* Warm gradient fill for the state */}
+          <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="0.4" y2="1">
+            <stop offset="0%" stopColor="#fef3c7" stopOpacity="0.7" />
+            <stop offset="50%" stopColor="#fde68a" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#fef9c3" stopOpacity="0.3" />
           </linearGradient>
-          {/* Pulse animation */}
-          <radialGradient id="pulse-grad">
-            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.4" />
+
+          {/* Warm glow around location */}
+          <radialGradient id={`${id}-glow`}>
+            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.3" />
+            <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.08" />
             <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
           </radialGradient>
+
+          {/* Subtle shadow for depth */}
+          <filter id={`${id}-shadow`}>
+            <feDropShadow
+              dx="0"
+              dy="1"
+              stdDeviation="2"
+              floodColor="#78716c"
+              floodOpacity="0.12"
+            />
+          </filter>
+
+          {/* Pulse animation for the marker ring */}
+          <style>{`
+            @keyframes ${id}-pulse {
+              0%, 100% { opacity: 0.4; r: 12; }
+              50% { opacity: 0.15; r: 18; }
+            }
+          `}</style>
         </defs>
 
-        {/* California outline — simplified path */}
+        {/* State outline — warm amber fill */}
         <path
-          d="M 30 8 L 28 12 L 24 18 L 22 24 L 20 32 L 18 38
-             L 16 42 L 14 48 L 14 54 L 16 58 L 18 62 L 20 68
-             L 22 74 L 24 80 L 26 86 L 28 90 L 30 96 L 30 102
-             L 28 108 L 26 112 L 24 118 L 22 124 L 24 130
-             L 28 136 L 32 140 L 36 144 L 40 148 L 42 152
-             L 44 156 L 48 160 L 52 164 L 56 168 L 60 172
-             L 64 176 L 68 178 L 72 180 L 76 184 L 80 188
-             L 84 190 L 88 194 L 92 198 L 96 202 L 100 206
-             L 104 210 L 108 214 L 112 218 L 116 222 L 120 224
-             L 124 222 L 128 218 L 130 214 L 128 210 L 124 206
-             L 120 202 L 116 198 L 112 194 L 108 190 L 106 186
-             L 104 180 L 102 174 L 100 168 L 98 162 L 96 156
-             L 94 148 L 92 140 L 90 132 L 88 124 L 86 116
-             L 84 108 L 84 100 L 86 92 L 88 84 L 90 76
-             L 92 68 L 94 60 L 96 52 L 98 44 L 100 38
-             L 100 32 L 98 26 L 94 22 L 88 18 L 82 14
-             L 76 12 L 70 10 L 64 8 L 58 8 L 52 8
-             L 46 8 L 40 8 L 36 8 Z"
-          fill="url(#ca-fill)"
-          stroke="#a8a29e"
-          strokeWidth="0.8"
+          d={outlinePath}
+          fill={`url(#${id}-fill)`}
+          stroke="#d6d3d1"
+          strokeWidth="1"
           strokeLinejoin="round"
+          filter={`url(#${id}-shadow)`}
         />
 
-        {/* Bay Area inset hint — subtle dotted box */}
-        <rect
-          x="18"
-          y="80"
-          width="28"
-          height="22"
+        {/* Interior detail lines — subtle topographic feel */}
+        <path
+          d={outlinePath}
           fill="none"
-          stroke="#a8a29e"
-          strokeWidth="0.4"
-          strokeDasharray="2 2"
-          rx="2"
-          opacity="0.4"
+          stroke="#e7e5e4"
+          strokeWidth="0.3"
+          strokeDasharray="4 6"
+          strokeLinejoin="round"
+          transform="translate(1.5, 1.5) scale(0.985)"
         />
 
-        {/* Pulsing ring */}
+        {/* Warm glow at location */}
+        <circle
+          cx={point.x}
+          cy={point.y}
+          r="28"
+          fill={`url(#${id}-glow)`}
+        />
+
+        {/* Animated pulse ring */}
         <circle
           cx={point.x}
           cy={point.y}
           r="12"
-          fill="url(#pulse-grad)"
-          className="animate-ping"
-          style={{ animationDuration: "3s" }}
+          fill="none"
+          stroke="#f59e0b"
+          strokeWidth="1"
+          opacity="0.4"
+          style={{ animation: `${id}-pulse 3s ease-in-out infinite` }}
         />
 
-        {/* Location dot */}
+        {/* Outer marker ring */}
         <circle
           cx={point.x}
           cy={point.y}
-          r="4"
+          r="8"
+          fill="none"
+          stroke="#f59e0b"
+          strokeWidth="1.5"
+          opacity="0.5"
+        />
+
+        {/* Inner marker dot */}
+        <circle
+          cx={point.x}
+          cy={point.y}
+          r="4.5"
           fill="#f59e0b"
           stroke="#ffffff"
-          strokeWidth="1.5"
+          strokeWidth="2"
         />
 
-        {/* Small inner dot */}
-        <circle
-          cx={point.x}
-          cy={point.y}
-          r="1.5"
-          fill="#ffffff"
+        {/* Location label */}
+        <text
+          x={labelX}
+          y={point.y + 1}
+          textAnchor={textAnchor}
+          className="fill-stone-500"
+          fontSize="9"
+          fontFamily="ui-sans-serif, system-ui, sans-serif"
+          fontWeight="600"
+          letterSpacing="0.03em"
+        >
+          {label}
+        </text>
+
+        {/* Thin connector line from dot to label */}
+        <line
+          x1={point.x + (labelRight ? 7 : -7)}
+          y1={point.y}
+          x2={labelRight ? labelX - 3 : labelX + 3}
+          y2={point.y}
+          stroke="#a8a29e"
+          strokeWidth="0.5"
+          opacity="0.6"
         />
       </svg>
-
-      {/* Label below */}
-      <div className="text-center mt-2">
-        <span className="text-[10px] uppercase tracking-wider text-stone-400 font-medium">
-          {label}
-        </span>
-      </div>
     </div>
   );
 }
