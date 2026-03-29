@@ -8,13 +8,21 @@ import {
   governanceColors,
   emsColors,
 } from "@/data/departments";
-import type { Department, SourceLink } from "@/data/departments";
+import type { SourceLink } from "@/data/departments";
+import { CaliforniaLocator } from "@/components/CaliforniaLocator";
+import { StationMap } from "@/components/StationMap";
+import { SocialLinks } from "@/components/SocialLinks";
+import { UpdatesRail } from "@/components/UpdatesRail";
 
 export function generateStaticParams() {
   return departments.map((d) => ({ slug: d.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const dept = getDepartment(slug);
   if (!dept) return { title: "Not Found" };
@@ -28,15 +36,13 @@ function DataCard({
   label,
   children,
   note,
-  className = "",
 }: {
   label: string;
   children: React.ReactNode;
   note?: string;
-  className?: string;
 }) {
   return (
-    <div className={`${className}`}>
+    <div>
       <div className="source-tag mb-1.5">{label}</div>
       <div>{children}</div>
       {note && (
@@ -64,7 +70,13 @@ function SourcePill({ source }: { source: SourceLink }) {
       rel="noopener noreferrer"
       className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded border text-xs font-medium hover:shadow-sm transition-shadow ${color}`}
     >
-      <svg className="w-3 h-3 opacity-60" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <svg
+        className="w-3 h-3 opacity-60"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+      >
         <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
       </svg>
       {source.label}
@@ -113,30 +125,49 @@ export default async function DepartmentPage({
         <span className="text-stone-600">{dept.short_name}</span>
       </nav>
 
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <span className={`badge ${governanceColors[dept.governance]}`}>
-            {dept.governance_label}
-          </span>
-          <span className={`badge ${emsColors[dept.ems_service_level]}`}>
-            {dept.ems_label}
-          </span>
-          <span className="badge bg-stone-100 text-stone-600">
-            {dept.county} County
-          </span>
+      {/* ─── Header with locator ─── */}
+      <div className="mb-8 flex flex-col sm:flex-row gap-6 sm:gap-10">
+        {/* Left: Department info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className={`badge ${governanceColors[dept.governance]}`}>
+              {dept.governance_label}
+            </span>
+            <span className={`badge ${emsColors[dept.ems_service_level]}`}>
+              {dept.ems_label}
+            </span>
+            <span className="badge bg-stone-100 text-stone-600">
+              {dept.county} County
+            </span>
+          </div>
+          <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl text-stone-900 leading-tight">
+            {dept.name}
+          </h1>
+          {dept.jurisdiction_note && (
+            <p className="mt-2 text-sm text-stone-500 max-w-2xl leading-relaxed">
+              {dept.jurisdiction_note}
+            </p>
+          )}
+
+          {/* Social links */}
+          {dept.socials && (
+            <div className="mt-4">
+              <SocialLinks socials={dept.socials} />
+            </div>
+          )}
         </div>
-        <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl text-stone-900 leading-tight">
-          {dept.name}
-        </h1>
-        {dept.jurisdiction_note && (
-          <p className="mt-2 text-sm text-stone-500 max-w-2xl leading-relaxed">
-            {dept.jurisdiction_note}
-          </p>
-        )}
+
+        {/* Right: California locator */}
+        <div className="w-28 sm:w-32 shrink-0 self-start">
+          <CaliforniaLocator
+            lat={dept.lat}
+            lng={dept.lng}
+            label={`${dept.county} County`}
+          />
+        </div>
       </div>
 
-      {/* Key metrics bar */}
+      {/* ─── Key metrics bar ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
           {
@@ -147,10 +178,9 @@ export default async function DepartmentPage({
           {
             label: "Stations",
             value: totalStations.toString(),
-            sub:
-              dept.station_count.airport
-                ? `${dept.station_count.city} city + ${dept.station_count.airport} airport${dept.station_count.other ? ` + ${dept.station_count.other} other` : ""}`
-                : undefined,
+            sub: dept.station_count.airport
+              ? `${dept.station_count.city} city + ${dept.station_count.airport} airport${dept.station_count.other ? ` + ${dept.station_count.other} other` : ""}`
+              : undefined,
           },
           {
             label: "Staffing",
@@ -184,7 +214,19 @@ export default async function DepartmentPage({
         ))}
       </div>
 
-      {/* Content sections */}
+      {/* ─── Station map (full width, above the grid) ─── */}
+      {dept.stations && dept.stations.length > 0 && (
+        <div className="mb-8">
+          <StationMap
+            stations={dept.stations}
+            centerLat={dept.lat}
+            centerLng={dept.lng}
+            zoom={dept.stations.length <= 10 ? 12 : 11}
+          />
+        </div>
+      )}
+
+      {/* ─── Content sections ─── */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Governance & Structure */}
         <Section title="Governance & Structure">
@@ -196,10 +238,7 @@ export default async function DepartmentPage({
               </div>
             </DataCard>
 
-            <DataCard
-              label="Battalion Structure"
-              note={dept.battalion_note}
-            >
+            <DataCard label="Battalion Structure" note={dept.battalion_note}>
               {dept.battalion_count !== undefined ? (
                 <>
                   <div className="text-lg font-semibold data-value">
@@ -219,13 +258,10 @@ export default async function DepartmentPage({
           </div>
         </Section>
 
-        {/* Operations */}
+        {/* Suppression & Operations */}
         <Section title="Suppression & Operations">
           <div className="space-y-5">
-            <DataCard
-              label="Stations"
-              note={dept.station_count.total_note}
-            >
+            <DataCard label="Stations" note={dept.station_count.total_note}>
               <div className="text-lg font-semibold data-value">
                 {totalStations} stations
               </div>
@@ -244,10 +280,7 @@ export default async function DepartmentPage({
             </DataCard>
 
             {dept.incident_volume && (
-              <DataCard
-                label="Call Volume"
-                note={dept.incident_volume.note}
-              >
+              <DataCard label="Call Volume" note={dept.incident_volume.note}>
                 {dept.incident_volume.total ? (
                   <div className="text-lg font-semibold data-value">
                     {formatNumber(dept.incident_volume.total)}{" "}
@@ -279,14 +312,14 @@ export default async function DepartmentPage({
           </div>
         </Section>
 
-        {/* EMS */}
+        {/* EMS Profile */}
         <Section title="EMS Profile">
           <DataCard label="Service Level" note={dept.ems_note}>
             <div className="text-sm font-medium">{dept.ems_label}</div>
           </DataCard>
         </Section>
 
-        {/* Compensation */}
+        {/* Compensation & Career */}
         <Section title="Compensation & Career">
           <div className="space-y-5">
             <DataCard
@@ -307,8 +340,7 @@ export default async function DepartmentPage({
                 Effective {dept.top_step_effective}
                 {dept.mou_term && (
                   <>
-                    {" "}
-                    · MOU {dept.mou_term}
+                    {" "}· MOU {dept.mou_term}
                     {dept.mou_status && (
                       <span
                         className={`ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
@@ -327,10 +359,7 @@ export default async function DepartmentPage({
               </div>
             </DataCard>
 
-            <DataCard
-              label="Retirement"
-              note={dept.retirement_note}
-            >
+            <DataCard label="Retirement" note={dept.retirement_note}>
               <div className="text-sm font-medium">
                 {dept.retirement_system} —{" "}
                 {dept.retirement_formula_current_hire}
@@ -342,19 +371,13 @@ export default async function DepartmentPage({
               )}
             </DataCard>
 
-            <DataCard
-              label="Work Schedule"
-              note={dept.work_schedule_note}
-            >
+            <DataCard label="Work Schedule" note={dept.work_schedule_note}>
               <div className="text-sm font-medium">
                 {dept.work_schedule || "Not documented in public sources"}
               </div>
             </DataCard>
 
-            <DataCard
-              label="Staffing"
-              note={dept.sworn_staffing_note}
-            >
+            <DataCard label="Staffing" note={dept.sworn_staffing_note}>
               <div className="text-lg font-semibold data-value">
                 {dept.sworn_staffing
                   ? formatNumber(dept.sworn_staffing)
@@ -370,7 +393,7 @@ export default async function DepartmentPage({
           </div>
         </Section>
 
-        {/* Special Operations - only if present */}
+        {/* Special Operations — only if present */}
         {dept.special_operations && dept.special_operations.length > 0 && (
           <Section title="Special Operations">
             <div className="space-y-3">
@@ -387,6 +410,11 @@ export default async function DepartmentPage({
               ))}
             </div>
           </Section>
+        )}
+
+        {/* Recent Updates — only if present */}
+        {dept.updates && dept.updates.length > 0 && (
+          <UpdatesRail updates={dept.updates} />
         )}
 
         {/* Sources */}

@@ -73,6 +73,34 @@ export interface Department {
 
   special_operations?: SpecialOp[];
 
+  // Geographic
+  lat: number;
+  lng: number;
+  region: "bay_area" | "sacramento" | "central_valley" | "norcal";
+
+  // Social links
+  socials?: {
+    website?: string;
+    instagram?: string;
+    facebook?: string;
+    youtube?: string;
+    x?: string;
+  };
+
+  // Station locations (for map)
+  stations?: {
+    name: string;
+    lat: number;
+    lng: number;
+  }[];
+
+  // Recent updates (lightweight)
+  updates?: {
+    date: string;
+    text: string;
+    source_url?: string;
+  }[];
+
   sources: SourceLink[];
   extracted_date: string;
 }
@@ -162,6 +190,46 @@ export const departments: Department[] = [
         name: "Marine",
         detail: "2 fireboats",
       },
+    ],
+
+    lat: 37.7749,
+    lng: -122.4194,
+    region: "bay_area",
+
+    socials: {
+      website: "https://sf-fire.org",
+      instagram: "https://www.instagram.com/sanfranciscofiredepartment/",
+      facebook: "https://www.facebook.com/yoursffd",
+      youtube: "https://www.youtube.com/@SanFranciscoFireDept",
+      x: "https://x.com/ABORNSF",
+    },
+
+    stations: [
+      { name: "Station 1", lat: 37.7829, lng: -122.4065 },
+      { name: "Station 2", lat: 37.7862, lng: -122.4105 },
+      { name: "Station 3", lat: 37.7925, lng: -122.4110 },
+      { name: "Station 4", lat: 37.7636, lng: -122.4268 },
+      { name: "Station 5", lat: 37.7802, lng: -122.4370 },
+      { name: "Station 6", lat: 37.7770, lng: -122.3980 },
+      { name: "Station 7", lat: 37.7660, lng: -122.4530 },
+      { name: "Station 8", lat: 37.7587, lng: -122.4210 },
+      { name: "Station 9", lat: 37.7551, lng: -122.4095 },
+      { name: "Station 10", lat: 37.7690, lng: -122.4690 },
+      { name: "Station 11", lat: 37.7433, lng: -122.4440 },
+      { name: "Station 12", lat: 37.7485, lng: -122.4150 },
+      { name: "Station 13", lat: 37.7928, lng: -122.4240 },
+      { name: "Station 14", lat: 37.7678, lng: -122.4870 },
+      { name: "Station 15", lat: 37.7280, lng: -122.4570 },
+      { name: "Station 16", lat: 37.7859, lng: -122.3940 },
+      { name: "Station 17", lat: 37.7530, lng: -122.3870 },
+      { name: "Station 18", lat: 37.7600, lng: -122.3870 },
+      { name: "Station 21", lat: 37.7500, lng: -122.3845 },
+      { name: "Station 36", lat: 37.7850, lng: -122.3910 },
+    ],
+
+    updates: [
+      { date: "2026-03-15", text: "Salary schedule updated — H002 Step 7 now $73.04/hr effective July 1, 2025", source_url: "https://careers.sf.gov/classifications/?classCode=H002" },
+      { date: "2026-03-10", text: "FY25-26 budget data extracted — 1,637.91 authorized uniform FTEs in Operations", source_url: "https://www.sf.gov/sites/default/files/2024-02/SFFD%20Budget%20Book%20FY25%20FY26%20240214%20FC.pdf" },
     ],
 
     sources: [
@@ -267,6 +335,35 @@ export const departments: Department[] = [
       },
     ],
 
+    lat: 37.9540,
+    lng: -122.0311,
+    region: "bay_area",
+
+    socials: {
+      website: "https://www.cccfpd.org",
+      instagram: "https://www.instagram.com/contracostafire/",
+      facebook: "https://www.facebook.com/ContraCostaCountyFire",
+      x: "https://x.com/ContraCostaFire",
+    },
+
+    stations: [
+      { name: "Station 1", lat: 37.9060, lng: -122.0680 },
+      { name: "Station 2", lat: 37.9250, lng: -122.0470 },
+      { name: "Station 6", lat: 37.9670, lng: -122.0310 },
+      { name: "Station 9", lat: 37.9430, lng: -122.0560 },
+      { name: "Station 11", lat: 37.9810, lng: -122.0350 },
+      { name: "Station 70", lat: 37.9380, lng: -122.3340 },
+      { name: "Station 73", lat: 37.9980, lng: -122.3560 },
+      { name: "Station 81", lat: 38.0050, lng: -121.8050 },
+      { name: "Station 84", lat: 38.0180, lng: -121.8880 },
+      { name: "Station 85", lat: 37.9920, lng: -121.6970 },
+    ],
+
+    updates: [
+      { date: "2026-03-10", text: "2024 call volume data extracted — 133,452 total dispatched calls", source_url: "https://www.cccfpd.org/159/Office-of-the-Fire-Chief" },
+      { date: "2026-02-20", text: "Rodeo-Hercules FPD annexation effective July 1, 2025 — station count may change" },
+    ],
+
     sources: [
       { label: "Local 1230 MOU 2023-2027", url: "https://www.contracosta.ca.gov/DocumentCenter/View/67730/2023-2027-1230-MOU-", type: "mou" },
       { label: "CCCERA Tier Structure", url: "https://www.cccera.gov/retirement-tier-structure", type: "retirement" },
@@ -336,6 +433,29 @@ export const departments: Department[] = [
       total_label: "16,000–18,500+ annually",
       note: 'City website says "16,000+"; GovernmentJobs posting (~Oct 2024) says "18,500+". No year-specific authoritative figure.',
     },
+
+    lat: 38.1041,
+    lng: -122.2566,
+    region: "bay_area",
+
+    socials: {
+      website: "https://www.cityofvallejo.net/our_city/departments_divisions/fire_department",
+      facebook: "https://www.facebook.com/VallejoFireDepartment",
+    },
+
+    stations: [
+      { name: "Station 21", lat: 38.1070, lng: -122.2590 },
+      { name: "Station 22", lat: 38.1020, lng: -122.2630 },
+      { name: "Station 23", lat: 38.1100, lng: -122.2440 },
+      { name: "Station 24", lat: 38.1150, lng: -122.2360 },
+      { name: "Station 25", lat: 38.0920, lng: -122.2360 },
+      { name: "Station 26", lat: 38.0730, lng: -122.2210 },
+      { name: "Station 27", lat: 38.1240, lng: -122.2470 },
+    ],
+
+    updates: [
+      { date: "2026-02-28", text: "FY 2025-26 budget data extracted — 85 authorized sworn FTEs, down from 100 in FY22-23", source_url: "https://www.cityofvallejo.net/common/pages/GetFile.ashx?key=bpJAAdFs" },
+    ],
 
     sources: [
       { label: "IAFF Salary Schedule (eff. 4/23/2025)", url: "https://www.cityofvallejo.net/common/pages/GetFile.ashx?key=4y0/ASPT", type: "salary" },
